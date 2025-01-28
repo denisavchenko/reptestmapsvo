@@ -1,0 +1,88 @@
+#map {
+    height: 98vh;
+    width: 100%;
+    position: relative;
+}
+#locations-list {
+    position: absolute;
+    top: 130px; /* Сдвиг вниз от верхней части */
+    left: 20px;
+    z-index: 999;
+    background-color: white;
+    padding: 10px;
+    max-height: 400px;
+    overflow-y: auto;
+    width: 250px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+#locations-list h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+#locations-list ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+#locations-list li {
+    cursor: pointer;
+    padding: 8px 12px;
+    margin-bottom: 5px;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    transition: background-color 0.3s ease;
+}
+#locations-list li:hover {
+    background-color: #f0f0f0;
+}
+#locations-list li:active {
+    background-color: #e0e0e0;
+}
+#toggle-geojson {
+    position: absolute;
+    top: 90px; /* Сдвиг вниз, чтобы не перекрывать управление картой */
+    left: 20px;
+    background-color: #3352ff;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 999;
+}
+#toggle-geojson:hover {
+    background-color: #283b8c;
+}
+
+#search-container {
+    position: absolute;
+    top: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    background: white;
+    padding: 10px;
+    border-radius: 5px;
+
+}
+#search-input {
+    width: 500px;
+    padding: 5px;
+}
+#search-button {
+    padding: 5px 10px;
+    margin-left: 5px;
+    background-color: #3352ff;
+    color: white;
+    border-radius: 5px;
+    border: none; /* Убираем границу */
+    outline: none; /* Убираем обводку при фокусе */
+    cursor: pointer; /* Делаем курсор указателем при наведении */
+    transition: transform 0.1s ease; /* Добавляем плавный переход для анимации */
+}
+
+#search-button:active {
+    transform: scale(0.95); /* Уменьшаем кнопку при нажатии */
+}
