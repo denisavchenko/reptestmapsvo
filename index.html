@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Карта с населёнными пунктами</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+    <!-- Подключаем плагин для поиска -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
+    <style>
+        #map {
+            height: 100vh;
+            width: 100%;
+            position: relative;
+        }
+        #locations-list {
+            position: absolute;
+            top: 130px; /* Сдвиг вниз от верхней части */
+            left: 20px;
+            z-index: 999;
+            background-color: white;
+            padding: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            width: 250px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        #locations-list h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        #locations-list ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        #locations-list li {
+            cursor: pointer;
+            padding: 8px 12px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            transition: background-color 0.3s ease;
+        }
+        #locations-list li:hover {
+            background-color: #f0f0f0;
+        }
+        #locations-list li:active {
+            background-color: #e0e0e0;
+        }
+        #toggle-geojson {
+            position: absolute;
+            top: 90px; /* Сдвиг вниз, чтобы не перекрывать управление картой */
+            left: 20px;
+            background-color: #3352ff;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 999;
+        }
+        #toggle-geojson:hover {
+            background-color: #283b8c;
+        }
+    </style>
+</head>
+<body>
+    <button id="toggle-geojson">Выключить фронт</button>
+    <div id="map"></div>
+    <div id="locations-list">
+        <h3>Список точек</h3>
+        <ul id="locations"></ul>
+    </div>
+
+    <script>
+        const map = L.map('map').setView([48.5, 37.5], 8);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        L.Control.geocoder().addTo(map);
+
+        const viewboxes = {
+            "Донецкая": "37.0,47.0,40.0,48.7",
+            "Луганская": "38.0,48.0,41.0,49.5",
+            "Запорожская": "35.5,46.5,38.5,48.0",
+            "Херсонская": "32.0,44.0,35.5,46.5",
+            "Сумская": "32.0,50.0,35.5,51.5"
+        };
+
+        let geojsonLayer = null;
+        let geojsonLayer1 = null;
+
+        fetch('rus_.geojson')  // Укажите путь к вашему GeoJSON файлу
+            .then(response => response.json())
+            .then(geojsonData => {
+                // Добавляем данные GeoJSON на карту с заданием стиля
+                geojsonLayer = L.geoJSON(geojsonData, {
+                    style: function (feature) {
+                        return {
+                            weight: 0,  // Убираем обводку
+                            color: 'transparent',  // Линия прозрачная
+                            fillColor: '#bf324c',  // Заливка синим цветом
+                            fillOpacity: 0.5  // Прозрачность заливки
+                        };
+                    }
+                }).addTo(map);
+            })
+            .catch(error => console.error('Ошибка загрузки GeoJSON:', error));
+
+            fetch('ua_.geojson')  // Укажите путь к вашему GeoJSON файлу
+            .then(response => response.json())
+            .then(geojsonData1 => {
+                // Добавляем данные GeoJSON на карту с заданием стиля
+                geojsonLayer1 = L.geoJSON(geojsonData1, {
+                    style: function (feature) {
+                        return {
+                            weight: 0,  // Убираем обводку
+                            color: 'transparent',  // Линия прозрачная
+                            fillColor: '#3352ff',  // Заливка синим цветом
+                            fillOpacity: 0.5  // Прозрачность заливки
+                        };
+                    }
+                }).addTo(map);
+            })
+            .catch(error => console.error('Ошибка загрузки GeoJSON:', error));
+
+        // Функция для форматирования даты
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}.${month}.${year}`;
+        }
+
+        function geocodeLocation(location, countryCode = 'UA', viewbox = '') {
+            return new Promise((resolve, reject) => {
+                const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}&countrycodes=${countryCode}&viewbox=${viewbox}`;
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.length > 0) {
+                            const { lat, lon } = data[0];
+                            resolve([lat, lon]);
+                        } else {
+                            reject(`Не удалось найти координаты для ${location}`);
+                        }
+                    })
+                    .catch(error => reject(error));
+            });
+        }
+
+        async function loadLocations() {
+            try {
+                const response = await fetch('./locations.json');
+                if (!response.ok) {
+                    throw new Error('Ошибка загрузки файла locations.json');
+                }
+                const locations = await response.json();
+                addMarkers(locations);
+            } catch (error) {
+                console.error('Ошибка при загрузке данных:', error);
+            }
+        }
+
+        async function addMarkers(locations) {
+            const locationsList = document.getElementById('locations');
+            for (let location of locations) {
+                try {
+                    if (location && location.name) {
+                        const viewbox = viewboxes["Донецкая"];
+                        const coords = await geocodeLocation(location.name, 'UA', viewbox);
+                        if (coords && coords.length > 0) {
+                            // Создаём кастомную иконку с кружком и картинкой
+                            const customIcon = L.divIcon({
+                                className: 'custom-marker',
+                                html: `<div style="background-color: #7e0001; border-radius: 50%; width: 18px; height: 18px; display: flex; justify-content: center; align-items: center; background-image: url('image.png'); background-size: cover;"></div>`,
+                                iconSize: [12, 12],    // Размер кружка
+                                iconAnchor: [8, 8],  // Центр иконки
+                                popupAnchor: [0, -8]  // Позиция попапа
+                            });
+
+                            const marker = L.marker(coords, { icon: customIcon }).addTo(map);
+                            marker.bindPopup(`<b>${location.name}</b>`);
+
+                            location.marker = marker;
+
+                            const listItem = document.createElement('li');
+                            const formattedDate = formatDate(location.date);
+                            listItem.innerHTML = `${location.name} <small>(${formattedDate})</small>`;
+                            listItem.onclick = () => {
+                                map.setView(coords, 10);
+                                marker.openPopup();
+                            };
+                            listItem.onmouseover = () => {
+                                listItem.style.backgroundColor = '#e0e0e0';
+                            };
+                            listItem.onmouseout = () => {
+                                listItem.style.backgroundColor = '';
+                            };
+                            locationsList.appendChild(listItem);
+
+                            // Обработчик клика на маркер (для попапа)
+                            marker.on('click', () => {
+                                marker.openPopup();
+                            });
+                        }
+                    }
+                } catch (error) {
+                    console.error(`Ошибка с локацией ${location.name}:`, error);
+                }
+            }
+        }
+
+        loadLocations();
+
+        // Обработчик для переключения видимости слоя GeoJSON
+        document.getElementById('toggle-geojson').addEventListener('click', () => {
+            if (geojsonLayer) {
+                if (map.hasLayer(geojsonLayer)) {
+                    map.removeLayer(geojsonLayer);
+                    document.getElementById('toggle-geojson').textContent = 'Включить фронт';
+                } else {
+                    map.addLayer(geojsonLayer);
+                    document.getElementById('toggle-geojson').textContent = 'Выключить фронт';
+                }
+            }
+        });
+
+        document.getElementById('toggle-geojson').addEventListener('click', () => {
+            if (geojsonLayer1) {
+                if (map.hasLayer(geojsonLayer1)) {
+                    map.removeLayer(geojsonLayer1);
+                    document.getElementById('toggle-geojson').textContent = 'Включить фронт  ';
+                } else {
+                    map.addLayer(geojsonLayer1);
+                    document.getElementById('toggle-geojson').textContent = 'Выключить фронт';
+                }
+            }
+        });
+
+    </script>
+</body>
+</html>
