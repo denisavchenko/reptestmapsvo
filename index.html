@@ -20,11 +20,20 @@
     <button id="toggle-geojson">Выключить фронт</button>
     <div id="map"></div>
 
-
-    
+    <div id="buttons-oblast">
+        <h3 class="buttons-title">Направления</h3>
+        <div id="dpr" class="custom-button" role="button" tabindex="0">Покровское</div>
+        <div id="lpr" class="custom-button" role="button" tabindex="0">Луганское</div>
+        <div id="kherson" class="custom-button" role="button" tabindex="0">Херсонское</div>
+        <div id="zaporizhzhia" class="custom-button" role="button" tabindex="0">Запарожское</div>
+        <div id="kursk" class="custom-button" role="button" tabindex="0">Курское</div>
+      </div>
+      
     <div id="locations-list">
-        <h3>Взят под контроль <button id="toggle-list">▼</button></h3> <strong>upd: 28.01.2025</strong> 
-        <ul id="locations"></ul>
+        <div class="locations-list-header"> Взят под контроль <button id="toggle-list">▼</button> <br> <strong>upd: 28.01.2025</strong></div> 
+            <div id="locations-container">
+                <ul id="locations"></ul>
+            </div>
     </div>
 
     

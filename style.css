@@ -3,19 +3,122 @@
     width: 100%;
     position: relative;
 }
-#locations-list {
+
+
+#buttons-oblast {
     position: absolute;
-    top: 130px; /* Сдвиг вниз от верхней части */
+    top: 135px;
     left: 20px;
     z-index: 999;
     background-color: white;
     padding: 10px;
-    max-height: 500px;
+    max-height: 400px;
+    overflow-y: auto;
+    width: 250px;
+    border-radius: 8px;
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.buttons-title {
+    margin-top: 5px; /* Уменьшаем верхний отступ */
+    margin-bottom: 5px; /* Уменьшаем нижний отступ */
+}
+
+
+.custom-button {
+    padding: 5px 10px; /* Отступы внутри кнопки */
+    font-size: 18px;
+    cursor: pointer;
+    background-color: #fbf8f8;
+    text-align: left; /* Выравнивание текста по левому краю */
+    border-radius: 5px;
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s, transform 0.2s;
+    margin: 5px 0; /* Отступы между кнопками */
+    width: 88%; /* Кнопки будут растягиваться на всю ширину контейнера */
+    padding-left: 20px; /* Отступ слева */
+}
+
+.custom-button:active {
+    transform: scale(0.95);
+    background-color: #3352ff;
+    color: white;
+}
+
+.custom-button:hover {
+    background-color: #e6e6e6;
+}
+
+.custom-button:hover:active {
+    transform: scale(0.95);
+    background-color: #3352ff;
+    color: white;
+}
+
+
+  
+  
+
+  
+  
+
+
+
+.locations-list-header {
+    
+    margin-top: 5px;
+    margin-bottom: 5px;
+    position: sticky;
+    top: 0;
+    background-color: white;
+    z-index: 1;
+    padding: 5px 10px;
+}
+
+#locations-container {
+    max-height: 250px; /* Ограничиваем высоту контейнера */
+    overflow-y: auto;  /* Включаем вертикальную прокрутку только для списка */
+}
+
+/* Скрываем ползунок прокрутки для Webkit-браузеров */
+#locations-container::-webkit-scrollbar {
+    width: 0;  /* Убираем ширину скроллбара */
+    background: transparent;  /* Делаем фон прозрачным */
+}
+
+/* Скрытие ползунка для Firefox */
+#locations-container {
+    scrollbar-width: none; /* Для Firefox */
+}
+
+/* Для всех остальных стилей списка */
+#locations {
+    list-style-type: none;
+    padding: 5px;
+    margin-top: 5px;
+    margin-bottom: 0;
+}
+
+
+
+
+#locations-list {
+    position: absolute;
+    top: 410px; /* Сдвиг вниз от верхней части */
+    left: 20px;
+    z-index: 999;
+    background-color: white;
+    padding: 5px 10px; /* Отступы сверху и снизу по 5px, слева и справа по 10px */
+    max-height: 300px;
     overflow-y: auto; /* Включаем прокрутку */
     width: 250px;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
+
 
 /* Скрываем стандартный скроллбар */
 #locations-list::-webkit-scrollbar {
@@ -29,19 +132,21 @@
     -ms-overflow-style: none; /* Для IE и Edge */
 }
 
-#locations-list h3 {
+/* #locations-list h3 {
     font-size: 18px;
     margin-bottom: 10px;
     font-weight: bold;
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
+} */
 
 #locations-list ul {
     list-style-type: none;
-    padding: 0;
-    margin: 0;
+
+    padding: 5px;
+    margin-top: 5px; /* Отступ сверху */
+
 }
 
 #locations-list li {
@@ -74,9 +179,13 @@
     cursor: pointer;
     padding: 0;
     margin: 0;
+    position: absolute;
+    right: 10px; /* Элемент будет находиться справа */
 }
 
+
 #toggle-geojson {
+    font-size: 14px;
     position: absolute;
     top: 90px; /* Сдвиг вниз, чтобы не перекрывать управление картой */
     left: 20px;
@@ -104,10 +213,15 @@
 
 }
 #search-input {
+    font-size: 14px;
     width: 500px;
     padding: 5px;
+    border-radius: 5px;
+    border: none; /* Убираем границу */
+    outline: none; /* Убираем обводку при фокусе */
 }
 #search-button {
+    font-size: 14px;
     padding: 5px 10px;
     margin-left: 5px;
     background-color: #3352ff;

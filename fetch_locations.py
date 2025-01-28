@@ -35,7 +35,7 @@ with app:
                     })
 
 # Сохраняем список населённых пунктов в файл в нужном формате
-with open("locations.json", "w", encoding="utf-8") as f:
+with open("./data/locations.json", "w", encoding="utf-8") as f:
     json.dump(locations, f, ensure_ascii=False, indent=4)
 
 print("Населённые пункты сохранены:", locations)

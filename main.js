@@ -1,10 +1,51 @@
 const map = L.map('map').setView([48.5, 37.5], 8);
 
+// Слой Light (CartoDB) — белая подложка
 var CartoDB_PositronNoLabels = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
     subdomains: 'abcd',
     maxZoom: 13,
     minZoom: 7
-}).addTo(map);
+});
+
+// Слой OSM (OpenStreetMap)
+var OpenStreetMap_Mapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 19
+});
+
+// Новый слой Esri World Imagery
+var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+  attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+});
+
+// Новый слой Stadia Alidade Satellite
+var Stadia_AlidadeSatellite = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_satellite/{z}/{x}/{y}{r}.{ext}', {
+  minZoom: 0,
+  maxZoom: 20,
+  attribution: '&copy; CNES, Distribution Airbus DS, © Airbus DS, © PlanetObserver (Contains Copernicus Data) | &copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  ext: 'jpg'
+});
+
+// Добавление белой подложки по умолчанию
+CartoDB_PositronNoLabels.addTo(map);
+
+// Объединение всех слоев без спутникового слоя
+var baseMaps = {
+    "Светлая": CartoDB_PositronNoLabels,
+    "OSM": OpenStreetMap_Mapnik,
+    "Esri World Imagery": Esri_WorldImagery,
+    "Stadia Satellite": Stadia_AlidadeSatellite
+};
+
+// Добавление панели выбора слоев
+L.control.layers(baseMaps).addTo(map);
+
+
+
+
+
+
+
 
 
 
@@ -83,6 +124,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const toggleButton = document.getElementById('toggle-list');
     const locationsList = document.getElementById('locations');
 
+    // Убедиться, что список скрыт при загрузке страницы
+    locationsList.classList.add('hidden');
+
     // Обработчик для кнопки раскрытия/скрытия списка
     toggleButton.addEventListener('click', function() {
         if (locationsList.classList.contains('hidden')) {
@@ -94,9 +138,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Загрузка локаций
+    // Загрузка локаций (например, сюда добавить функцию, которая наполняет список)
     loadLocations();
 });
+
 
 async function loadLocations() {
     try {
@@ -245,4 +290,41 @@ document.getElementById('search-input').addEventListener('keypress', function(e)
         searchPlace();
     }
 });
+
+var locationsOblast = {
+    dpr: { lat: 48.2, lon: 37.0, zoom: 10 },
+    lpr: { lat: 49.5, lon: 38.0, zoom: 9 },
+    kherson: { lat: 46.8, lon: 34.0, zoom: 8 },
+    zaporizhzhia: { lat: 47.7, lon: 36.1, zoom: 9 },
+    kursk: { lat: 51.3, lon: 35.2, zoom: 10 }
+  };
+
+  // Функция для перемещения на выбранную область
+  function moveToArea(area) {
+    var location = locationsOblast[area];
+    if (location) {
+      map.setView([location.lat, location.lon], location.zoom);
+    }
+  }
+
+  // Обработчики событий для кнопок
+  document.getElementById('dpr').addEventListener('click', function() {
+    moveToArea('dpr');
+  });
+
+  document.getElementById('lpr').addEventListener('click', function() {
+    moveToArea('lpr');
+  });
+
+  document.getElementById('kherson').addEventListener('click', function() {
+    moveToArea('kherson');
+  });
+
+  document.getElementById('zaporizhzhia').addEventListener('click', function() {
+    moveToArea('zaporizhzhia');
+  });
+
+  document.getElementById('kursk').addEventListener('click', function() {
+    moveToArea('kursk');
+  });
 
