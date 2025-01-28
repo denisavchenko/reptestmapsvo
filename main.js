@@ -79,6 +79,25 @@ function geocodeLocation(location, countryCode = 'UA', viewbox = '') {
     });
 }
 
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleButton = document.getElementById('toggle-list');
+    const locationsList = document.getElementById('locations');
+
+    // Обработчик для кнопки раскрытия/скрытия списка
+    toggleButton.addEventListener('click', function() {
+        if (locationsList.classList.contains('hidden')) {
+            locationsList.classList.remove('hidden');
+            toggleButton.textContent = '▼';
+        } else {
+            locationsList.classList.add('hidden');
+            toggleButton.textContent = '▲';
+        }
+    });
+
+    // Загрузка локаций
+    loadLocations();
+});
+
 async function loadLocations() {
     try {
         const response = await fetch('./data/locations.json');
@@ -140,8 +159,6 @@ async function addMarkers(locations) {
         }
     }
 }
-
-loadLocations();
 
 // Обработчик для переключения видимости слоя GeoJSON
 document.getElementById('toggle-geojson').addEventListener('click', () => {
