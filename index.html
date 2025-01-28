@@ -13,7 +13,7 @@
 
     <style>
         #map {
-            height: 100vh;
+            height: 98vh;
             width: 100%;
             position: relative;
         }
@@ -69,13 +69,40 @@
         #toggle-geojson:hover {
             background-color: #283b8c;
         }
+
+        #search-container {
+            position: absolute;
+            top: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        #search-input {
+            width: 500px;
+            padding: 5px;
+        }
+        #search-button {
+            padding: 5px 10px;
+            margin-left: 5px;
+            background-color: #3352ff;
+            color: white;
+        }
+
     </style>
 </head>
 <body>
+    <div id="search-container">
+        <input type="text" id="search-input" placeholder="Введите название населенного пункта">
+        <button id="search-button">Поиск</button>
+    </div>
     <button id="toggle-geojson">Выключить фронт</button>
     <div id="map"></div>
     <div id="locations-list">
-        <h3>Список точек</h3>
+        <h3>Список точек:  <strong>28.01.25</strong></h3>
         <ul id="locations"></ul>
     </div>
 
@@ -86,7 +113,7 @@
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        L.Control.geocoder().addTo(map);
+
 
         const viewboxes = {
             "Донецкая": "37.0,47.0,40.0,48.7",
@@ -247,6 +274,62 @@
                 }
             }
         });
+
+        var citiesGeojsonUrl = 'city_test.geojson';
+
+// Переменная для хранения данных GeoJSON
+var cityData = null;
+
+// Слой для отображения найденных маркеров
+var searchLayer = L.layerGroup().addTo(map);
+
+// Загрузка данных GeoJSON
+fetch(citiesGeojsonUrl)
+    .then(response => response.json())
+    .then(data => {
+        cityData = data; // Сохраняем данные в переменную
+    })
+    .catch(error => {
+        console.error('Ошибка загрузки GeoJSON с городами:', error);
+    });
+
+// Функция поиска
+function searchPlace() {
+    var searchTerm = document.getElementById('search-input').value;
+    if (searchTerm && cityData) {
+        searchLayer.clearLayers(); // Очищаем предыдущие результаты поиска
+        var found = false;
+
+        // Поиск по данным
+        cityData.features.forEach(function(feature) {
+            if (feature.properties.name.toLowerCase() === searchTerm.toLowerCase()) {
+                var latLng = L.latLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
+                L.marker(latLng)
+                    .bindPopup(feature.properties.name)
+                    .addTo(searchLayer); // Добавляем маркер в searchLayer
+                map.setView(latLng, 10);
+                found = true;
+                
+            }
+        });
+
+        if (!found) {
+            alert("Населенный пункт не найден");
+        }
+    }
+}
+
+// Обработчик события для кнопки поиска
+document.getElementById('search-button').addEventListener('click', searchPlace);
+
+// Обработчик события для нажатия Enter в поле ввода
+document.getElementById('search-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        searchPlace();
+    }
+});
+
+
 
     </script>
 </body>
