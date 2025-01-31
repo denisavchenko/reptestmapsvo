@@ -236,3 +236,66 @@
 #search-button:active {
     transform: scale(0.95); /* Уменьшаем кнопку при нажатии */
 }
+
+body.menu-open {
+    overflow: hidden; /* Блокирует прокрутку страницы */
+}
+
+.menu {
+    position: absolute;
+    top: 300px;
+    right: -300px;
+    width: 300px;
+    height: 500px;
+    background: white;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+    transition: right 0.3s;
+    padding: 20px;
+    z-index: 999;
+    box-sizing: border-box;
+    overflow-y: auto; /* Оставляем прокрутку внутри меню, если нужно */
+}
+
+
+.menu-toggle {
+    position: absolute;
+    top: 300px;
+    right: 20px;
+    background: #fafafa;
+    color: rgb(0, 0, 0);
+    padding: 10px;
+    cursor: pointer;
+    z-index: 1000;
+    border-radius: 5px;
+    transition: right 0.3s;
+    
+}
+
+
+
+.menu.open {
+    right: 0;
+}
+.menu.open + .menu-toggle {
+    right: 270px;
+}
+.menu-header {
+    margin-top: -5px; /* Поднимет верхнюю часть меню на 10px */
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+.menu-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.menu-item img {
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+    cursor: grab;
+}
+.menu-item span {
+    font-size: 18px;
+}

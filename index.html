@@ -10,6 +10,8 @@
     <!-- Подключаем плагин для поиска -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
     <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
+
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -17,6 +19,39 @@
         <input type="text" id="search-input" placeholder="Введите название населенного пункта">
         <button id="search-button">Поиск</button>
     </div>
+
+
+    <div class="menu-toggle" id="menu-toggle" onclick="toggleMenu()">☰</div>
+    <div class="menu" id="menu">
+        <div class="menu-header">Условные обозначения</div>
+        <!-- Блоки с изображениями для каждой иконки -->
+        <div class="menu-item">
+            <img id="marker1" class="draggable" src="./crs/boi.png" alt="Иконка 1" draggable="true">
+            <span>Боестолкновения</span>
+        </div>
+        <div class="menu-item">
+            <img id="marker2" class="draggable" src="./crs/udar.png" alt="Иконка 2" draggable="true">
+            <span>Удары по наземным целям</span>
+        </div>
+        <!-- Добавляем новые иконки -->
+        <div class="menu-item">
+            <img id="marker3" class="draggable" src="./crs/vzat.png" alt="Иконка 3" draggable="true">
+            <span>Взят под контроль</span>
+        </div>
+        <div class="menu-item">
+            <img id="marker4" class="draggable" src="./crs/vsu.png" alt="Иконка 4" draggable="true">
+            <span>Крупный опорный пункты ВСУ</span>
+        </div>
+
+        <div class="menu-item">
+            <img id="marker5" class="draggable" src="./crs/fsrf.png" alt="Иконка 5" draggable="true">
+            <span>Крупный опорный пункты ВС РФ</span>
+        </div>
+
+    </div>
+
+
+
     <button id="toggle-geojson">Выключить фронт</button>
     <div id="map"></div>
 
@@ -25,12 +60,16 @@
         <div id="dpr" class="custom-button" role="button" tabindex="0">Покровское</div>
         <div id="lpr" class="custom-button" role="button" tabindex="0">Луганское</div>
         <div id="kherson" class="custom-button" role="button" tabindex="0">Херсонское</div>
-        <div id="zaporizhzhia" class="custom-button" role="button" tabindex="0">Запарожское</div>
+        <div id="zaporizhzhia" class="custom-button" role="button" tabindex="0">Запорожское</div>
         <div id="kursk" class="custom-button" role="button" tabindex="0">Курское</div>
-      </div>
+    </div>
       
+
+
+
+
     <div id="locations-list">
-        <div class="locations-list-header"> Взят под контроль <button id="toggle-list">▼</button> <br> <strong>upd: 28.01.2025</strong></div> 
+        <div class="locations-list-header"> Взят под контроль <button id="toggle-list">▲</button> <br> <strong>upd: 31.01.2025</strong> </div> 
             <div id="locations-container">
                 <ul id="locations"></ul>
             </div>

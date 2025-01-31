@@ -49,6 +49,7 @@ L.control.layers(baseMaps).addTo(map);
 
 
 
+
 const viewboxes = {
     "Донецкая": "37.0,47.0,40.0,48.7",
     "Луганская": "38.0,48.0,41.0,49.5",
@@ -145,7 +146,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function loadLocations() {
     try {
-        const response = await fetch('./data/locations.json');
+        const response = await fetch('./locations.json');
         if (!response.ok) {
             throw new Error('Ошибка загрузки файла locations.json');
         }
@@ -328,3 +329,85 @@ var locationsOblast = {
     moveToArea('kursk');
   });
 
+
+
+
+
+
+  function toggleMenu() {
+    var menu = document.getElementById('menu');
+    var toggleButton = document.getElementById('menu-toggle');
+    var body = document.body;
+    
+    menu.classList.toggle('open');
+    if (menu.classList.contains('open')) {
+        toggleButton.style.right = '310px';
+        body.classList.add('menu-open'); // Блокируем прокрутку
+    } else {
+        toggleButton.style.right = '20px';
+        body.classList.remove('menu-open'); // Разблокируем прокрутку
+    }
+}
+
+
+
+
+
+         // Обработчик для начала перетаскивания (для всех иконок)
+         document.querySelectorAll('.draggable').forEach(item => {
+            item.addEventListener('dragstart', function(event) {
+                // Запоминаем, какой маркер был выбран
+                event.dataTransfer.setData('markerType', event.target.id);
+            });
+        });
+
+        var mapContainer = document.getElementById('map');
+        mapContainer.addEventListener('dragover', function(event) {
+            event.preventDefault(); // Необходимо для разрешения drop-события
+        });
+
+        var markers = []; // Массив для хранения маркеров
+
+        // Обработчик события "drop" для размещения маркера на карте
+        mapContainer.addEventListener('drop', function(event) {
+            event.preventDefault();
+            // Получаем тип маркера (например, marker1, marker2 и т.д.)
+            var markerType = event.dataTransfer.getData('markerType');
+            var latlng = map.mouseEventToLatLng(event); // Получаем координаты точки на карте
+
+            // Устанавливаем иконку для маркера в зависимости от выбранного элемента
+            var iconUrl = '';
+            if (markerType === 'marker1') {
+                iconUrl = './crs/boi.png';
+            } else if (markerType === 'marker2') {
+                iconUrl = './crs/udar.png';
+            } else if (markerType === 'marker3') {
+                iconUrl = './crs/vzat.png';
+            } else if (markerType === 'marker4') {
+                iconUrl = './crs/vsu.png';
+            } else if (markerType === 'marker5') {
+                iconUrl = './crs/fsrf.png';
+            }
+
+            // Создаем иконку маркера
+            var customIcon = L.icon({
+                iconUrl: iconUrl,
+                iconSize: [30, 30], // Размер иконки
+                iconAnchor: [15, 15] // Якорь иконки (позиция, где маркер будет прикреплен)
+            });
+
+            // Создаем маркер и добавляем его на карту
+            var marker = L.marker(latlng, { icon: customIcon }).addTo(map);
+            
+            // Включаем возможность перетаскивания маркера
+            marker.dragging.enable();
+
+            // Слушаем событие правой кнопкой мыши для удаления маркера
+            marker.on('contextmenu', function() {
+                map.removeLayer(marker);
+                markers = markers.filter(m => m !== marker); // Удаляем маркер из массива
+            });
+
+            // Добавляем маркер в массив
+            markers.push(marker);
+        });

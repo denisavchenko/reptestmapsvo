@@ -1,3 +1,5 @@
+# python3 fetch_locations.py
+
 from pyrogram import Client
 import json
 
@@ -35,7 +37,7 @@ with app:
                     })
 
 # Сохраняем список населённых пунктов в файл в нужном формате
-with open("./data/locations.json", "w", encoding="utf-8") as f:
+with open("./locations.json", "w", encoding="utf-8") as f:
     json.dump(locations, f, ensure_ascii=False, indent=4)
 
 print("Населённые пункты сохранены:", locations)
