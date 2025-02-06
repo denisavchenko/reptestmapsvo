@@ -11,6 +11,9 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
     <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 
+    <!-- Подключаем плагин Mapbox GL для Leaflet -->
+    <script src="https://unpkg.com/mapbox-gl@2.14.1/dist/mapbox-gl.js"></script>
+    <script src="https://unpkg.com/mapbox-gl-leaflet/leaflet-mapbox-gl.js"></script>
 
     <link rel="stylesheet" href="style.css">
 </head>
@@ -52,6 +55,7 @@
 
 
 
+
     <button id="toggle-geojson">Выключить фронт</button>
     <div id="map"></div>
 
@@ -69,7 +73,10 @@
 
 
     <div id="locations-list">
-        <div class="locations-list-header"> Взят под контроль <button id="toggle-list">▲</button> <br> <strong>upd: 31.01.2025</strong> </div> 
+        <div class="locations-list-header"> <strong>Взят под контроль</strong> <button id="toggle-list">▲</button> 
+            <!-- <br> <strong>upd: 31.01.2025</strong>  -->
+        </div> 
+        <button id="hide-all">Скрыть н.п</button>
             <div id="locations-container">
                 <ul id="locations"></ul>
             </div>

@@ -237,6 +237,21 @@
     transform: scale(0.95); /* Уменьшаем кнопку при нажатии */
 }
 
+#hide-all {
+    font-size: 12px;
+    padding: 5px 10px;
+    margin-left: 5px;
+    background-color: #ededed;
+    color: rgb(0, 0, 0);
+    border-radius: 5px;
+    border: none; /* Убираем границу */
+    outline: none; /* Убираем обводку при фокусе */
+    cursor: pointer; /* Делаем курсор указателем при наведении */
+    transition: transform 0.1s ease; /* Добавляем плавный переход для анимации */
+}
+
+
+
 body.menu-open {
     overflow: hidden; /* Блокирует прокрутку страницы */
 }

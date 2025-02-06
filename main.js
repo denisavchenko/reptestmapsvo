@@ -1,7 +1,8 @@
-const map = L.map('map').setView([48.5, 37.5], 8);
+const map = L.map('map', { attributionControl: false }).setView([48.5, 37.5], 8);
+
 
 // Слой Light (CartoDB) — белая подложка
-var CartoDB_PositronNoLabels = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+var CartoDB_PositronNoLabels = L.tileLayer('https://a.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}@2x.png', {
     subdomains: 'abcd',
     maxZoom: 13,
     minZoom: 7
@@ -18,27 +19,27 @@ var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest
   attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
 });
 
-// Новый слой Stadia Alidade Satellite
-var Stadia_AlidadeSatellite = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_satellite/{z}/{x}/{y}{r}.{ext}', {
-  minZoom: 0,
-  maxZoom: 20,
-  attribution: '&copy; CNES, Distribution Airbus DS, © Airbus DS, © PlanetObserver (Contains Copernicus Data) | &copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-  ext: 'jpg'
+
+// Добавление Mapbox GL слоя
+var mapboxGL = L.mapboxGL({
+    accessToken: 'pk.eyJ1IjoiZGVuaXNhdmNoZW5rbyIsImEiOiJjbTJkcW9haXgxZ3ZsMmpyMnJvNWtiajk0In0.9VQSet50FTEZ0qMkQCMcsQ',
+    style: 'mapbox://styles/denisavchenko/cm6sfy24f016101qxflrp6s2l'
 });
 
 // Добавление белой подложки по умолчанию
 CartoDB_PositronNoLabels.addTo(map);
 
-// Объединение всех слоев без спутникового слоя
+// Объединение всех слоев
 var baseMaps = {
-    "Светлая": CartoDB_PositronNoLabels,
-    "OSM": OpenStreetMap_Mapnik,
-    "Esri World Imagery": Esri_WorldImagery,
-    "Stadia Satellite": Stadia_AlidadeSatellite
+    "Светлая тема": CartoDB_PositronNoLabels,
+    "OCM": OpenStreetMap_Mapnik,
+    "Спутник": Esri_WorldImagery,
+    "СВО РИК": mapboxGL
 };
 
 // Добавление панели выбора слоев
 L.control.layers(baseMaps).addTo(map);
+
 
 
 
@@ -61,7 +62,7 @@ const viewboxes = {
 let geojsonLayer = null;
 let geojsonLayer1 = null;
 
-fetch('./data/rus_.geojson')  // Укажите путь к вашему GeoJSON файлу
+fetch('./data/rus_front.geojson')  // Укажите путь к вашему GeoJSON файлу
     .then(response => response.json())
     .then(geojsonData => {
         // Добавляем данные GeoJSON на карту с заданием стиля
@@ -70,15 +71,15 @@ fetch('./data/rus_.geojson')  // Укажите путь к вашему GeoJSON
                 return {
                     weight: 0,  // Убираем обводку
                     color: 'transparent',  // Линия прозрачная
-                    fillColor: '#bf324c',  // Заливка синим цветом
-                    fillOpacity: 0.5  // Прозрачность заливки
+                    fillColor: '#b41010',  // Заливка синим цветом
+                    fillOpacity: 0.3  // Прозрачность заливки
                 };
             }
         }).addTo(map);
     })
     .catch(error => console.error('Ошибка загрузки GeoJSON:', error));
 
-    fetch('./data/ua_.geojson')  // Укажите путь к вашему GeoJSON файлу
+    fetch('./data/ua_front.geojson')  // Укажите путь к вашему GeoJSON файлу
     .then(response => response.json())
     .then(geojsonData1 => {
         // Добавляем данные GeoJSON на карту с заданием стиля
@@ -87,8 +88,8 @@ fetch('./data/rus_.geojson')  // Укажите путь к вашему GeoJSON
                 return {
                     weight: 0,  // Убираем обводку
                     color: 'transparent',  // Линия прозрачная
-                    fillColor: '#3352ff',  // Заливка синим цветом
-                    fillOpacity: 0.5  // Прозрачность заливки
+                    fillColor: '#15557e',  // Заливка синим цветом
+                    fillOpacity: 0.3  // Прозрачность заливки
                 };
             }
         }).addTo(map);
@@ -124,11 +125,10 @@ function geocodeLocation(location, countryCode = 'UA', viewbox = '') {
 document.addEventListener('DOMContentLoaded', function() {
     const toggleButton = document.getElementById('toggle-list');
     const locationsList = document.getElementById('locations');
+    const hideAllButton = document.getElementById('hide-all');
 
-    // Убедиться, что список скрыт при загрузке страницы
     locationsList.classList.add('hidden');
 
-    // Обработчик для кнопки раскрытия/скрытия списка
     toggleButton.addEventListener('click', function() {
         if (locationsList.classList.contains('hidden')) {
             locationsList.classList.remove('hidden');
@@ -139,10 +139,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Загрузка локаций (например, сюда добавить функцию, которая наполняет список)
+    hideAllButton.addEventListener('click', toggleMarkersVisibility);
+
     loadLocations();
 });
 
+let markerzahvat = [];
+let markersHidden = false;
 
 async function loadLocations() {
     try {
@@ -159,25 +162,30 @@ async function loadLocations() {
 
 async function addMarkers(locations) {
     const locationsList = document.getElementById('locations');
+
     for (let location of locations) {
         try {
             if (location && location.name) {
                 const viewbox = viewboxes["Донецкая"];
                 const coords = await geocodeLocation(location.name, 'UA', viewbox);
                 if (coords && coords.length > 0) {
-                    // Создаём кастомную иконку с кружком и картинкой
                     const customIcon = L.divIcon({
                         className: 'custom-marker',
-                        html: `<div style="background-color: #7e0001; border-radius: 50%; width: 18px; height: 18px; display: flex; justify-content: center; align-items: center; background-image: url('./crs/image.png'); background-size: cover;"></div>`,
-                        iconSize: [12, 12],    // Размер кружка
-                        iconAnchor: [8, 8],  // Центр иконки
-                        popupAnchor: [0, -8]  // Позиция попапа
+                        html: `<div style="background-color: #7e0001; border-radius: 50%; width: 24px; height: 24px; display: flex; justify-content: center; align-items: center; background-image: url('./crs/image.png'); background-size: cover; border: 1.5px solid white;"></div>`,
+                        iconSize: [24, 24],
+                        iconAnchor: [12, 12],
+                        popupAnchor: [0, -8]
                     });
 
-                    const marker = L.marker(coords, { icon: customIcon }).addTo(map);
-                    marker.bindPopup(`<b>${location.name}</b>`);
+                    const marker = L.marker(coords, { icon: customIcon });
 
-                    location.marker = marker;
+                    // Если маркеры скрыты, не добавляем на карту
+                    if (!markersHidden) {
+                        marker.addTo(map);
+                    }
+
+                    marker.bindPopup(`<b>${location.name}</b>`);
+                    markerzahvat.push(marker);
 
                     const listItem = document.createElement('li');
                     const formattedDate = formatDate(location.date);
@@ -193,11 +201,6 @@ async function addMarkers(locations) {
                         listItem.style.backgroundColor = '';
                     };
                     locationsList.appendChild(listItem);
-
-                    // Обработчик клика на маркер (для попапа)
-                    marker.on('click', () => {
-                        marker.openPopup();
-                    });
                 }
             }
         } catch (error) {
@@ -205,6 +208,21 @@ async function addMarkers(locations) {
         }
     }
 }
+
+// Функция для скрытия/показа всех маркеров (включая новые)
+function toggleMarkersVisibility() {
+    markersHidden = !markersHidden;
+
+    if (markersHidden) {
+        markerzahvat.forEach(marker => map.removeLayer(marker)); // Скрываем все
+        document.getElementById('hide-all').textContent = 'Показать н.п';
+    } else {
+        markerzahvat.forEach(marker => marker.addTo(map)); // Показываем все
+        document.getElementById('hide-all').textContent = 'Скрыть н.п';
+    }
+}
+
+
 
 // Обработчик для переключения видимости слоя GeoJSON
 document.getElementById('toggle-geojson').addEventListener('click', () => {
@@ -231,7 +249,7 @@ document.getElementById('toggle-geojson').addEventListener('click', () => {
     }
 });
 
-var citiesGeojsonUrl = './data/city_test.geojson';
+var citiesGeojsonUrl = './data/city_all.geojson';
 
 // Переменная для хранения данных GeoJSON
 var cityData = null;
@@ -258,10 +276,10 @@ function searchPlace() {
 
         // Поиск по данным
         cityData.features.forEach(function(feature) {
-            if (feature.properties.name.toLowerCase() === searchTerm.toLowerCase()) {
+            if (feature.properties.namerus.toLowerCase() === searchTerm.toLowerCase()) {
                 var latLng = L.latLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
                 var marker = L.marker(latLng)
-                    .bindPopup(feature.properties.name)
+                    .bindPopup(feature.properties.namerus)
                     .addTo(searchLayer); // Добавляем маркер в searchLayer
 
                 // Подлет к найденному месту
@@ -392,7 +410,7 @@ var locationsOblast = {
             // Создаем иконку маркера
             var customIcon = L.icon({
                 iconUrl: iconUrl,
-                iconSize: [30, 30], // Размер иконки
+                iconSize: [32, 32], // Размер иконки
                 iconAnchor: [15, 15] // Якорь иконки (позиция, где маркер будет прикреплен)
             });
 
