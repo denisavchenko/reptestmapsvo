@@ -171,15 +171,14 @@ async function addMarkers(locations) {
                 if (coords && coords.length > 0) {
                     const customIcon = L.divIcon({
                         className: 'custom-marker',
-                        html: `<div style="background-color: #7e0001; border-radius: 50%; width: 24px; height: 24px; display: flex; justify-content: center; align-items: center; background-image: url('./crs/image.png'); background-size: cover; border: 1.5px solid white;"></div>`,
-                        iconSize: [24, 24],
-                        iconAnchor: [12, 12],
+                        html: `<div style="background-color: #7e0001; border-radius: 50%; width: 32px; height: 32px; display: flex; justify-content: center; align-items: center; background-image: url('./crs/image.png'); background-size: cover; border: 2.5px solid white;"></div>`,
+                        iconSize: [32, 32],
+                        iconAnchor: [14, 14],
                         popupAnchor: [0, -8]
                     });
 
                     const marker = L.marker(coords, { icon: customIcon });
 
-                    // Если маркеры скрыты, не добавляем на карту
                     if (!markersHidden) {
                         marker.addTo(map);
                     }
@@ -190,16 +189,30 @@ async function addMarkers(locations) {
                     const listItem = document.createElement('li');
                     const formattedDate = formatDate(location.date);
                     listItem.innerHTML = `${location.name} <small>(${formattedDate})</small>`;
+                    
                     listItem.onclick = () => {
                         map.setView(coords, 10);
+
+                        if (markersHidden) {
+                            marker.addTo(map);
+                        }
+
                         marker.openPopup();
+
+                        marker.on('popupclose', () => {
+                            if (markersHidden) {
+                                map.removeLayer(marker);
+                            }
+                        });
                     };
+
                     listItem.onmouseover = () => {
                         listItem.style.backgroundColor = '#e0e0e0';
                     };
                     listItem.onmouseout = () => {
                         listItem.style.backgroundColor = '';
                     };
+                    
                     locationsList.appendChild(listItem);
                 }
             }
@@ -209,18 +222,18 @@ async function addMarkers(locations) {
     }
 }
 
-// Функция для скрытия/показа всех маркеров (включая новые)
 function toggleMarkersVisibility() {
     markersHidden = !markersHidden;
 
     if (markersHidden) {
-        markerzahvat.forEach(marker => map.removeLayer(marker)); // Скрываем все
-        document.getElementById('hide-all').textContent = 'Показать н.п';
+        markerzahvat.forEach(marker => map.removeLayer(marker));
+        document.getElementById('hide-all').textContent = 'Показать все';
     } else {
-        markerzahvat.forEach(marker => marker.addTo(map)); // Показываем все
-        document.getElementById('hide-all').textContent = 'Скрыть н.п';
+        markerzahvat.forEach(marker => marker.addTo(map));
+        document.getElementById('hide-all').textContent = 'Скрыть все';
     }
 }
+
 
 
 
@@ -408,11 +421,13 @@ var locationsOblast = {
             }
 
             // Создаем иконку маркера
-            var customIcon = L.icon({
-                iconUrl: iconUrl,
-                iconSize: [32, 32], // Размер иконки
-                iconAnchor: [15, 15] // Якорь иконки (позиция, где маркер будет прикреплен)
+            var customIcon = L.divIcon({
+                className: 'marker-with-border', // Новый класс для стилизации
+                html: `<div class="marker-wrapper"><img src="${iconUrl}" class="marker-icon"></div>`,
+                iconSize: [38, 38],
+                iconAnchor: [19, 19]
             });
+            
 
             // Создаем маркер и добавляем его на карту
             var marker = L.marker(latlng, { icon: customIcon }).addTo(map);

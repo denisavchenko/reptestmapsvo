@@ -314,3 +314,19 @@ body.menu-open {
 .menu-item span {
     font-size: 18px;
 }
+
+.marker-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 39px;
+    height: 39px;
+    border-radius: 50%; /* Круглая обводка */
+    background: white; /* Цвет обводки */
+}
+
+.marker-icon {
+    width: 39px;
+    height: 39px;
+    border-radius: 50%; /* Круглая картинка */
+}
