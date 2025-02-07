@@ -322,7 +322,6 @@ body.menu-open {
     width: 39px;
     height: 39px;
     border-radius: 50%; /* Круглая обводка */
-    background: white; /* Цвет обводки */
 }
 
 .marker-icon {
