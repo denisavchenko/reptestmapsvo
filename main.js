@@ -262,6 +262,14 @@ document.getElementById('toggle-geojson').addEventListener('click', () => {
     }
 });
 
+
+
+
+
+
+
+
+
 var citiesGeojsonUrl = './data/city_all.geojson';
 
 // Переменная для хранения данных GeoJSON
@@ -270,48 +278,90 @@ var cityData = null;
 // Слой для отображения найденных маркеров
 var searchLayer = L.layerGroup().addTo(map);
 
+// Флаг, указывающий, загружены ли данные
+var dataLoaded = false;
+
 // Загрузка данных GeoJSON
 fetch(citiesGeojsonUrl)
     .then(response => response.json())
     .then(data => {
         cityData = data; // Сохраняем данные в переменную
+        dataLoaded = true; // Отмечаем, что данные загружены
     })
     .catch(error => {
         console.error('Ошибка загрузки GeoJSON с городами:', error);
     });
 
-// Функция поиска
-function searchPlace() {
-    var searchTerm = document.getElementById('search-input').value;
-    if (searchTerm && cityData) {
-        searchLayer.clearLayers(); // Очищаем предыдущие результаты поиска
-        var found = false;
+    let searchMarkersCity = []; // Массив для хранения маркеров
 
-        // Поиск по данным
-        cityData.features.forEach(function(feature) {
-            if (feature.properties.namerus.toLowerCase() === searchTerm.toLowerCase()) {
-                var latLng = L.latLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
-                var marker = L.marker(latLng)
-                    .bindPopup(feature.properties.namerus)
-                    .addTo(searchLayer); // Добавляем маркер в searchLayer
-
-                // Подлет к найденному месту
-                map.setView(latLng, 10);
-
-                // Добавляем обработчик правого клика для удаления маркера
-                marker.on('contextmenu', function(e) {
-                    searchLayer.removeLayer(marker); // Удаляем маркер
-                });
-
-                found = true;
+    function searchPlace() {
+        var searchTerm = document.getElementById('search-input').value.trim();
+    
+        if (!dataLoaded) {
+            alert("Данные о городах еще загружаются. Подождите немного.");
+            return;
+        }
+    
+        if (searchTerm) {
+            var found = false;
+    
+            cityData.features.forEach(function(feature) {
+                if (feature.properties && feature.properties.namerus) {
+                    if (feature.properties.namerus.toLowerCase() === searchTerm.toLowerCase()) {
+                        var latLng = L.latLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
+    
+                        // Проверяем, есть ли уже маркер на этом месте
+                        var existingMarker = null;
+                        searchMarkersCity.forEach(function(marker) {
+                            if (marker.getLatLng().equals(latLng)) {
+                                existingMarker = marker;
+                            }
+                        });
+    
+                        if (!existingMarker) {
+                            var marker = L.marker(latLng)
+                                .bindPopup(feature.properties.namerus, { autoClose: false }) // отключаем autoClose
+                                .addTo(searchLayer);
+    
+                            // Добавляем маркер в массив
+                            searchMarkersCity.push(marker);
+    
+                            // Открываем попап для нового маркера
+                            marker.openPopup();
+    
+                            marker.on('click', function() {
+                                marker.openPopup(); // открываем попап при клике
+                            });
+    
+                            marker.on('contextmenu', function() {
+                                searchLayer.removeLayer(marker); // удаляем маркер по правому клику
+                                searchMarkersCity = searchMarkersCity.filter(m => m !== marker); // удаляем маркер из массива
+                            });
+                        } else {
+                            existingMarker.openPopup(); // открываем попап у существующего маркера
+                        }
+    
+                        map.setView(latLng, 10);
+                        found = true;
+                    }
+                }
+            });
+    
+            if (!found) {
+                alert("Населенный пункт не найден");
             }
-        });
-
-        if (!found) {
-            alert("Населенный пункт не найден");
         }
     }
-}
+    
+    
+
+
+
+
+
+
+
+
 
 // Обработчик события для кнопки поиска
 document.getElementById('search-button').addEventListener('click', searchPlace);
